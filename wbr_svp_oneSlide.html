@@ -76,7 +76,7 @@ html,body{
 .main{
   flex:1;min-height:0;
   display:grid;
-  grid-template-columns:220px 1fr 210px;
+  grid-template-columns:220px 1fr 260px;
   gap:5px;
   overflow:hidden;
 }
@@ -187,6 +187,25 @@ html,body{
 .dbg{flex:1;height:6px;background:var(--g1);border-radius:3px;overflow:hidden}
 .dbf{height:100%;border-radius:3px}
 .dpct{font-size:.54rem;font-weight:700;color:var(--navy);width:26px;text-align:right;flex-shrink:0}
+
+/* ── ISSUE THEME TABLE ── */
+.it{width:100%;border-collapse:collapse}
+.it thead th{
+  background:var(--navy);color:#fff;
+  padding:3px 6px;font-size:.52rem;font-weight:700;text-align:left;
+}
+.it thead th:first-child{width:20px;text-align:center}
+.it thead th:nth-child(2){width:90px}
+.it tbody tr:nth-child(odd){background:#f8f8f8}
+.it tbody tr:hover{background:var(--sky)}
+.it td{padding:3px 6px;border-bottom:1px solid var(--g1);vertical-align:top;font-size:.56rem}
+.it td:first-child{text-align:center;font-weight:800;font-size:.6rem}
+.it .tn{font-weight:700;color:var(--navy);font-size:.58rem}
+.it .te{font-size:.52rem;color:var(--g2);margin-top:1px;line-height:1.3}
+.it-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:.48rem;font-weight:700;margin-right:3px;margin-bottom:2px}
+.ib-r{background:var(--rlt);color:var(--red)}
+.ib-o{background:var(--olt);color:var(--orange)}
+.ib-b{background:var(--sky);color:var(--blue)}
 
 /* ── FOOTER ── */
 .ftr{
@@ -411,15 +430,68 @@ html,body{
           </div>
         </div>
 
-        <!-- Case Drivers -->
+        <!-- Visit Management Issue Themes -->
         <div class="card grow">
-          <div class="ch">Top Case Drivers</div>
-          <div class="drv"><span class="dlbl">Life Science Cloud</span><div class="dbg"><div class="dbf" style="width:100%;background:#032D60"></div></div><span class="dpct">16%</span></div>
-          <div class="drv"><span class="dlbl">OMNI</span><div class="dbg"><div class="dbf" style="width:75%;background:#0176D3"></div></div><span class="dpct">~12%</span></div>
-          <div class="drv"><span class="dlbl">Industry CPQ/Order</span><div class="dbg"><div class="dbf" style="width:62%;background:#1B96FF"></div></div><span class="dpct">~10%</span></div>
-          <div class="drv"><span class="dlbl">Digital Commerce</span><div class="dbg"><div class="dbf" style="width:50%;background:#06A59A"></div></div><span class="dpct">~8%</span></div>
-          <div class="drv"><span class="dlbl">Rev Cloud Core</span><div class="dbg"><div class="dbf" style="width:44%;background:#7526E3"></div></div><span class="dpct">~7%</span></div>
-          <div class="cw" style="margin-top:4px"><canvas id="driverChart"></canvas></div>
+          <div class="ch">
+            #Issue Theme — Visit Management
+            <span class="note">&nbsp;·&nbsp; Key observation: Documentation gap</span>
+          </div>
+          <table class="it">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Theme</th>
+                <th>Example Issues</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--red)">1</td>
+                <td>
+                  <div class="tn">Visit Creation / Saving Errors</div>
+                  <span class="it-badge ib-r">Creation</span><span class="it-badge ib-r">Save Error</span>
+                </td>
+                <td>
+                  <div class="te">"Error while creating a visit"</div>
+                  <div class="te">"Unable to create visit records"</div>
+                  <div class="te">"Visit not getting saved"</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="color:var(--orange)">2</td>
+                <td>
+                  <div class="tn">Visit Not Appearing / Visibility</div>
+                  <span class="it-badge ib-o">Visibility</span><span class="it-badge ib-o">Timeline</span>
+                </td>
+                <td>
+                  <div class="te">"Visit not showing on activity timeline"</div>
+                  <div class="te">"Completed visits not visible"</div>
+                  <div class="te">"Visit engagement page not loading"</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="color:var(--blue)">3</td>
+                <td>
+                  <div class="tn">Visit Status &amp; Workflow Issues</div>
+                  <span class="it-badge ib-b">Status</span><span class="it-badge ib-b">Workflow</span>
+                </td>
+                <td>
+                  <div class="te">"Visit status not updating"</div>
+                  <div class="te">"Unable to submit/close visit"</div>
+                  <div class="te">"Visit approval not working"</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- compact driver bars below theme table -->
+          <div style="margin-top:6px;flex-shrink:0">
+            <div class="ch" style="margin-bottom:4px">Top Case Drivers</div>
+            <div class="drv"><span class="dlbl">Life Science Cloud</span><div class="dbg"><div class="dbf" style="width:100%;background:#032D60"></div></div><span class="dpct">16%</span></div>
+            <div class="drv"><span class="dlbl">OMNI</span><div class="dbg"><div class="dbf" style="width:75%;background:#0176D3"></div></div><span class="dpct">~12%</span></div>
+            <div class="drv"><span class="dlbl">Industry CPQ/Order</span><div class="dbg"><div class="dbf" style="width:62%;background:#1B96FF"></div></div><span class="dpct">~10%</span></div>
+            <div class="drv"><span class="dlbl">Digital Commerce</span><div class="dbg"><div class="dbf" style="width:50%;background:#06A59A"></div></div><span class="dpct">~8%</span></div>
+            <div class="drv"><span class="dlbl">Rev Cloud Core</span><div class="dbg"><div class="dbf" style="width:44%;background:#7526E3"></div></div><span class="dpct">~7%</span></div>
+          </div>
         </div>
 
       </div><!-- /right -->
@@ -468,37 +540,6 @@ new Chart(document.getElementById('trendChart'),{
   }
 });
 
-// ── Driver chart (horizontal bar) ──
-new Chart(document.getElementById('driverChart'),{
-  type:'bar',
-  data:{
-    labels:['Life Sci','OMNI','Ind CPQ','Dig Com','Rev Cld'],
-    datasets:[{
-      label:'% Volume',
-      data:[16,12,10,8,7],
-      backgroundColor:['#032D60','#0176D3','#1B96FF','#06A59A','#7526E3'],
-      borderRadius:3,
-      datalabels:{
-        anchor:'end', align:'right', offset:2,
-        color:'#032D60', font:{weight:'700',size:7.5},
-        formatter: v => v+'%'
-      }
-    }]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    indexAxis:'y',
-    plugins:{
-      legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}%`}},
-      datalabels:{display:true}
-    },
-    scales:{
-      x:{grid:{display:false}, ticks:{font:{size:7.5}, callback:v=>v+'%'}, max:22},
-      y:{grid:{display:false}, ticks:{font:{size:7.5}}}
-    }
-  }
-});
 </script>
 </body>
 </html>
