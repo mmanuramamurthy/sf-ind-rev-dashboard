@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/notes/notes.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 /* ── SF TOKENS ── */
 :root {
@@ -696,6 +697,9 @@
 </div><!-- /reveal -->
 
 <script>
+// Register datalabels plugin globally
+Chart.register(ChartDataLabels);
+
 Reveal.initialize({
   hash: true,
   slideNumber: false,
@@ -712,11 +716,30 @@ const closures = [1062,1357,1432,1528];
 const csat     = [4.86,4.76,4.72,4.87];
 const ttr      = [8.4,8.8,10.1,9.8];
 
+// Shared datalabels config for bar charts (value on top, white text)
+const barDL = {
+  anchor:'end', align:'end',
+  color:'#032D60', font:{weight:'700',size:9},
+  formatter: v => v.toLocaleString()
+};
+
+// Datalabels for line charts (above points)
+const lineDL = {
+  anchor:'end', align:'top', offset:4,
+  color: ctx => ctx.dataset.borderColor || '#032D60',
+  font:{weight:'700',size:9},
+  formatter: v => v
+};
+
+// Suppress datalabels on reference/target datasets
+const noLabel = { display: false };
+
 const baseOpts = {
   responsive:true, maintainAspectRatio:false,
   plugins:{
     legend:{position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},
-    tooltip:{mode:'index',intersect:false}
+    tooltip:{mode:'index',intersect:false},
+    datalabels: noLabel   // default OFF; each chart opts in
   },
   scales:{
     x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}}},
@@ -724,51 +747,79 @@ const baseOpts = {
   }
 };
 
-// Exec trend
+// ── Exec Trend (bar, grouped) ──
 new Chart(document.getElementById('execTrend'),{
   type:'bar',
   data:{labels:months,datasets:[
-    {label:'Inflow',data:inflow,backgroundColor:'#0176D3',borderRadius:4},
-    {label:'Closures',data:closures,backgroundColor:'#06A59A',borderRadius:4}
+    {label:'Inflow',  data:inflow,   backgroundColor:'#0176D3',borderRadius:4,datalabels:barDL},
+    {label:'Closures',data:closures, backgroundColor:'#06A59A',borderRadius:4,datalabels:barDL}
   ]},
-  options:{...baseOpts}
+  options:{
+    ...baseOpts,
+    plugins:{...baseOpts.plugins, datalabels:{display:true}},
+    scales:{
+      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}}},
+      y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},beginAtZero:true, grace:'15%'}
+    }
+  }
 });
 
-// Ind chart
+// ── Ind chart ──
 new Chart(document.getElementById('indChart'),{
   type:'bar',
   data:{labels:months,datasets:[
-    {label:'Ind Inflow',data:[763,915,965,946],backgroundColor:'#0176D3',borderRadius:4},
-    {label:'Ind Closures',data:[639,851,909,1008],backgroundColor:'#06A59A',borderRadius:4}
+    {label:'Ind Inflow',  data:[763,915,965,946], backgroundColor:'#0176D3',borderRadius:4,datalabels:barDL},
+    {label:'Ind Closures',data:[639,851,909,1008],backgroundColor:'#06A59A',borderRadius:4,datalabels:barDL}
   ]},
-  options:{...baseOpts}
+  options:{
+    ...baseOpts,
+    plugins:{...baseOpts.plugins, datalabels:{display:true}},
+    scales:{
+      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}}},
+      y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},beginAtZero:true, grace:'15%'}
+    }
+  }
 });
 
-// Rev chart
+// ── Rev chart ──
 new Chart(document.getElementById('revChart'),{
   type:'bar',
   data:{labels:months,datasets:[
-    {label:'Rev Inflow',data:[497,515,521,515],backgroundColor:'#7526E3',borderRadius:4},
-    {label:'Rev Closures',data:[420,504,521,520],backgroundColor:'#FE9339',borderRadius:4}
+    {label:'Rev Inflow',  data:[497,515,521,515],backgroundColor:'#7526E3',borderRadius:4,datalabels:barDL},
+    {label:'Rev Closures',data:[420,504,521,520],backgroundColor:'#FE9339',borderRadius:4,datalabels:barDL}
   ]},
-  options:{...baseOpts}
+  options:{
+    ...baseOpts,
+    plugins:{...baseOpts.plugins, datalabels:{display:true}},
+    scales:{
+      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}}},
+      y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},beginAtZero:true, grace:'15%'}
+    }
+  }
 });
 
-// CSAT trend line
+// ── CSAT Trend (line) ──
 new Chart(document.getElementById('csatTrend'),{
   type:'line',
   data:{labels:months,datasets:[
     {label:'CSAT',data:csat,borderColor:'#2E844A',backgroundColor:'rgba(46,132,74,.1)',
-     fill:true,tension:.4,pointRadius:5,pointBackgroundColor:csat.map(v=>v>=4.5?'#2E844A':'#BA0517'),borderWidth:2.5},
-    {label:'Target (4.5)',data:[4.5,4.5,4.5,4.5],borderColor:'#DD7A01',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false}
+     fill:true,tension:.4,pointRadius:5,pointBackgroundColor:csat.map(v=>v>=4.5?'#2E844A':'#BA0517'),borderWidth:2.5,
+     datalabels:{...lineDL, color: ctx => csat[ctx.dataIndex]>=4.5?'#2E844A':'#BA0517',
+       formatter: v => v.toFixed(2)}},
+    {label:'Target (4.5)',data:[4.5,4.5,4.5,4.5],borderColor:'#DD7A01',borderDash:[5,4],
+     borderWidth:1.5,pointRadius:0,fill:false, datalabels:noLabel}
   ]},
-  options:{...baseOpts,scales:{
-    x:{grid:{display:false},ticks:{font:{size:10}}},
-    y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},min:4.5,max:5.0}
-  }}
+  options:{
+    ...baseOpts,
+    plugins:{...baseOpts.plugins, datalabels:{display:true}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:10}}},
+      y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},min:4.5,max:5.05}
+    }
+  }
 });
 
-// CSAT bar by tier
+// ── CSAT Bar by tier (horizontal) ──
 new Chart(document.getElementById('csatBar'),{
   type:'bar',
   data:{
@@ -777,40 +828,54 @@ new Chart(document.getElementById('csatBar'),{
       label:'CSAT Score',
       data:[4.87,4.85,4.92,4.82,4.5],
       backgroundColor:['#032D60','#0176D3','#7526E3','#2E844A','rgba(221,122,1,.4)'],
-      borderRadius:6
+      borderRadius:6,
+      datalabels:{
+        anchor:'end', align:'right', offset:4,
+        color:'#032D60', font:{weight:'700',size:10},
+        formatter: v => v.toFixed(2)
+      }
     }]
   },
   options:{
     ...baseOpts,
     indexAxis:'y',
-    plugins:{...baseOpts.plugins,legend:{display:false}},
+    plugins:{...baseOpts.plugins, legend:{display:false}, datalabels:{display:true}},
     scales:{
-      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},min:4.4,max:5.0},
+      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},min:4.3,max:5.1},
       y:{grid:{display:false},ticks:{font:{size:10}}}
     }
   }
 });
 
-// TTR slides (reused twice)
-['ttrSlide'].forEach(id=>{
-  new Chart(document.getElementById(id),{
-    type:'line',
-    data:{labels:months,datasets:[
-      {label:'TTR (days)',data:ttr,
-       borderColor:'#0176D3',backgroundColor:'rgba(1,118,211,.08)',fill:true,
-       tension:.3,pointRadius:6,
-       pointBackgroundColor:ttr.map(v=>v>10?'#BA0517':'#2E844A'),borderWidth:2.5,
-       segment:{borderColor:ctx=>ttr[ctx.p1DataIndex]>10?'#BA0517':'#0176D3'}},
-      {label:'Target (10d)',data:[10,10,10,10],borderColor:'#DD7A01',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false}
-    ]},
-    options:{...baseOpts,scales:{
+// ── TTR Line ──
+new Chart(document.getElementById('ttrSlide'),{
+  type:'line',
+  data:{labels:months,datasets:[
+    {label:'TTR (days)',data:ttr,
+     borderColor:'#0176D3',backgroundColor:'rgba(1,118,211,.08)',fill:true,
+     tension:.3,pointRadius:6,
+     pointBackgroundColor:ttr.map(v=>v>10?'#BA0517':'#2E844A'),borderWidth:2.5,
+     segment:{borderColor:ctx=>ttr[ctx.p1DataIndex]>10?'#BA0517':'#0176D3'},
+     datalabels:{
+       anchor:'end', align:'top', offset:6,
+       color: ctx => ttr[ctx.dataIndex]>10?'#BA0517':'#2E844A',
+       font:{weight:'700',size:10},
+       formatter: v => v+'d'
+     }},
+    {label:'Target (10d)',data:[10,10,10,10],borderColor:'#DD7A01',borderDash:[5,4],
+     borderWidth:1.5,pointRadius:0,fill:false, datalabels:noLabel}
+  ]},
+  options:{
+    ...baseOpts,
+    plugins:{...baseOpts.plugins, datalabels:{display:true}},
+    scales:{
       x:{grid:{display:false},ticks:{font:{size:10}}},
-      y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},min:7,max:12}
-    }}
-  });
+      y:{grid:{color:'#DDDBDA'},ticks:{font:{size:10}},min:7,max:12.5}
+    }
+  }
 });
 
-// Sev1 chart
+// ── Sev1 Doughnut ──
 new Chart(document.getElementById('sev1Chart'),{
   type:'doughnut',
   data:{
@@ -820,30 +885,47 @@ new Chart(document.getElementById('sev1Chart'),{
       borderWidth:2,borderColor:'#fff'
     }]
   },
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10,padding:10}},
-    tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} cases`}}}
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'right',labels:{font:{size:10},boxWidth:10,padding:10}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} cases`}},
+      datalabels:{
+        color:'#fff',
+        font:{weight:'700',size:11},
+        formatter:(v,ctx)=>{
+          const total=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+          const pct=Math.round(v/total*100);
+          return pct>5 ? `${v}\n(${pct}%)` : '';
+        }
+      }
+    }
   }
 });
 
-// Driver chart
+// ── Driver Chart (horizontal bar) ──
 new Chart(document.getElementById('driverChart'),{
   type:'bar',
   data:{
-    labels:['Life Science Cloud','OMNI','Industry CPQ /\nOrder Mgmt','Digital\nCommerce','Rev Cloud\nCore Config'],
+    labels:['Life Science Cloud','OMNI','Industry CPQ / Order Mgmt','Digital Commerce','Rev Cloud Core Config'],
     datasets:[{
       label:'% of Case Volume',
       data:[16,12,10,8,7],
       backgroundColor:['#032D60','#0176D3','#1B96FF','#06A59A','#7526E3'],
-      borderRadius:6
+      borderRadius:6,
+      datalabels:{
+        anchor:'end', align:'right', offset:4,
+        color:'#032D60', font:{weight:'700',size:10},
+        formatter: v => v+'%'
+      }
     }]
   },
   options:{
     ...baseOpts,
     indexAxis:'y',
-    plugins:{...baseOpts.plugins,legend:{display:false}},
+    plugins:{...baseOpts.plugins, legend:{display:false}, datalabels:{display:true}},
     scales:{
-      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10},callback:v=>v+'%'},max:20},
+      x:{grid:{color:'#DDDBDA'},ticks:{font:{size:10},callback:v=>v+'%'},max:22},
       y:{grid:{display:false},ticks:{font:{size:10}}}
     }
   }
