@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>WBR – IST Support Experience · Apr 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --sf-navy:    #032D60;
+    --sf-blue:    #0176D3;
+    --sf-blue-lt: #1B96FF;
+    --sf-sky:     #D8EDFF;
+    --sf-teal:    #06A59A;
+    --sf-green:   #2E844A;
+    --sf-green-lt:#EBF5E9;
+    --sf-red:     #BA0517;
+    --sf-red-lt:  #FEEEF0;
+    --sf-orange:  #DD7A01;
+    --sf-orange-lt:#FEF0DC;
+    --sf-purple:  #7526E3;
+    --sf-gray0:   #F3F3F3;
+    --sf-gray1:   #DDDBDA;
+    --sf-gray2:   #9090A0;
+    --sf-white:   #FFFFFF;
+    --sf-text:    #181818;
+    --r:          8px;
+    --sh:         0 2px 8px rgba(0,0,0,.12);
+    --sh2:        0 4px 16px rgba(0,0,0,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Salesforce Sans','Segoe UI',Arial,sans-serif;background:var(--sf-gray0);color:var(--sf-text);padding:20px;font-size:13px}
+
+  /* ── PAGE HEADER ── */
+  .page-header{
+    background:linear-gradient(135deg,var(--sf-navy) 0%,#0B4EA2 60%,var(--sf-blue) 100%);
+    color:var(--sf-white);border-radius:var(--r);padding:22px 28px;
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:20px;box-shadow:var(--sh2);
+  }
+  .page-header .left{display:flex;align-items:center;gap:16px}
+  .sf-cloud-icon{width:44px;height:44px;background:var(--sf-white);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sf-cloud-icon svg{width:26px;height:26px}
+  .page-header h1{font-size:1.5rem;font-weight:800;letter-spacing:.3px}
+  .page-header .sub{font-size:.82rem;opacity:.75;margin-top:3px}
+  .page-header .badges{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .badge-ist{background:var(--sf-blue-lt);color:var(--sf-white);padding:4px 14px;border-radius:20px;font-weight:700;font-size:.82rem}
+  .badge-sf{background:var(--sf-white);color:var(--sf-blue);padding:4px 14px;border-radius:20px;font-weight:700;font-size:.78rem;letter-spacing:.5px}
+  .badge-date{background:rgba(255,255,255,.15);color:var(--sf-white);padding:4px 14px;border-radius:20px;font-size:.75rem}
+
+  /* ── GRID HELPERS ── */
+  .row{display:grid;gap:16px;margin-bottom:16px}
+  .row-2{grid-template-columns:1fr 1fr}
+  .row-3{grid-template-columns:1fr 1fr 1fr}
+  .row-13{grid-template-columns:340px 1fr}
+  .row-12{grid-template-columns:1fr 2fr}
+
+  /* ── CARD ── */
+  .card{background:var(--sf-white);border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px}
+  .card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--sf-navy);padding-bottom:10px;margin-bottom:14px;border-bottom:2px solid var(--sf-sky);display:flex;align-items:center;justify-content:space-between}
+  .card-title span{font-weight:400;text-transform:none;letter-spacing:0;font-size:.75rem;color:var(--sf-gray2)}
+
+  /* ── EXEC KPI TILES ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+  .kpi-tile{background:var(--sf-white);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;border-left:4px solid var(--accent)}
+  .kpi-tile .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--sf-gray2);margin-bottom:4px}
+  .kpi-tile .val{font-size:1.75rem;font-weight:800;color:var(--accent);line-height:1}
+  .kpi-tile .chg{font-size:.72rem;color:var(--sf-gray2);margin-top:3px}
+  .kpi-tile .chg .up{color:var(--sf-green)}
+  .kpi-tile .chg .dn{color:var(--sf-red)}
+  .kpi-tile .chg .warn{color:var(--sf-orange)}
+
+  /* ── INFLOW TREND ── */
+  .chart-wrap{position:relative;height:180px}
+
+  /* ── INFLOW BREAKDOWN ── */
+  .breakdown-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--sf-gray1)}
+  .breakdown-row:last-child{border-bottom:none}
+  .breakdown-row .seg{font-weight:700;color:var(--sf-navy);font-size:.88rem}
+  .breakdown-row .nums{font-size:.82rem;color:var(--sf-text)}
+  .breakdown-row .moa{font-size:.72rem;padding:2px 8px;border-radius:10px;font-weight:600}
+  .moa-dn{background:var(--sf-red-lt);color:var(--sf-red)}
+  .moa-up{background:var(--sf-green-lt);color:var(--sf-green)}
+
+  /* ── SEV 1 SECTION ── */
+  .sev1-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .stat-box{background:var(--sf-sky);border-radius:6px;padding:10px 12px;text-align:center}
+  .stat-box .sv{font-size:1.3rem;font-weight:800;color:var(--sf-navy)}
+  .stat-box .sl{font-size:.7rem;color:var(--sf-gray2);margin-top:2px}
+  .driver-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--sf-gray1);font-size:.82rem}
+  .driver-item:last-child{border-bottom:none}
+  .driver-dot{width:8px;height:8px;border-radius:50%;background:var(--sf-blue);flex-shrink:0}
+  .driver-count{margin-left:auto;font-weight:700;color:var(--sf-navy);background:var(--sf-sky);padding:1px 7px;border-radius:10px;font-size:.75rem}
+
+  /* ── KPI TABLE ── */
+  .kpi-table{width:100%;border-collapse:collapse;font-size:.82rem}
+  .kpi-table thead tr th{
+    background:var(--sf-navy);color:var(--sf-white);
+    padding:9px 12px;text-align:center;font-weight:700;letter-spacing:.3px
+  }
+  .kpi-table thead tr th:first-child{text-align:left;border-radius:6px 0 0 0}
+  .kpi-table thead tr th:last-child{border-radius:0 6px 0 0}
+  .kpi-table tbody tr:nth-child(even){background:var(--sf-gray0)}
+  .kpi-table tbody tr:hover{background:var(--sf-sky);transition:background .15s}
+  .kpi-table td{padding:8px 12px;text-align:center;border-bottom:1px solid var(--sf-gray1);vertical-align:middle}
+  .kpi-table td:first-child{text-align:left;font-weight:600;color:var(--sf-navy)}
+  .kpi-table td.target{color:var(--sf-gray2);font-style:italic}
+  .cell-val{font-weight:700;font-size:.88rem}
+  .delta{font-size:.72rem;margin-left:4px;font-weight:500}
+  .delta-good{color:var(--sf-green)}
+  .delta-bad{color:var(--sf-red)}
+  .delta-warn{color:var(--sf-orange)}
+  .delta-neu{color:var(--sf-gray2)}
+  .status-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700}
+  .pill-green{background:var(--sf-green-lt);color:var(--sf-green)}
+  .pill-red{background:var(--sf-red-lt);color:var(--sf-red)}
+  .pill-orange{background:var(--sf-orange-lt);color:var(--sf-orange)}
+  .pill-blue{background:var(--sf-sky);color:var(--sf-blue)}
+
+  /* ── CSAT BAR ── */
+  .csat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .csat-box{border-radius:6px;padding:12px 14px;text-align:center}
+  .csat-box.overall{background:var(--sf-navy);color:var(--sf-white)}
+  .csat-box.prem{background:#E8F4FD;color:var(--sf-navy)}
+  .csat-box.sig{background:#EDE5FB;color:var(--sf-purple)}
+  .csat-box.std{background:var(--sf-green-lt);color:var(--sf-green)}
+  .csat-box .cv{font-size:1.4rem;font-weight:800;line-height:1}
+  .csat-box .cl{font-size:.7rem;margin-top:3px;opacity:.8}
+  .csat-box .cn{font-size:.68rem;margin-top:1px;opacity:.65}
+
+  /* ── THROUGHPUT ── */
+  .tp-row{display:flex;gap:16px;margin-top:12px}
+  .tp-box{flex:1;text-align:center;background:var(--sf-sky);border-radius:6px;padding:10px}
+  .tp-box .tv{font-size:1.3rem;font-weight:800;color:var(--sf-navy)}
+  .tp-box .tl{font-size:.7rem;color:var(--sf-gray2);margin-top:2px}
+
+  /* ── OBSERVATIONS ── */
+  .obs-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--sf-gray1)}
+  .obs-item:last-child{border-bottom:none}
+  .obs-icon{width:28px;height:28px;border-radius:50%;background:var(--sf-sky);color:var(--sf-blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .obs-text .oh{font-weight:700;color:var(--sf-navy);font-size:.88rem}
+  .obs-text .os{font-size:.78rem;color:var(--sf-gray2);margin-top:2px}
+
+  /* ── CASE DRIVERS ── */
+  .driver-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .driver-bar-row .dlbl{font-size:.8rem;color:var(--sf-navy);width:170px;flex-shrink:0}
+  .driver-bar-bg{flex:1;height:10px;background:var(--sf-gray1);border-radius:5px;overflow:hidden}
+  .driver-bar-fill{height:100%;border-radius:5px;background:var(--sf-blue)}
+  .driver-pct{font-size:.75rem;font-weight:700;color:var(--sf-navy);width:36px;text-align:right;flex-shrink:0}
+
+  /* ── SECTION DIVIDER ── */
+  .section-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--sf-blue);margin-bottom:8px;padding-left:2px}
+
+  /* ── FOOTER ── */
+  .footer{text-align:center;font-size:.7rem;color:var(--sf-gray2);margin-top:20px;padding-top:12px;border-top:1px solid var(--sf-gray1)}
+</style>
+</head>
+<body>
+
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-header">
+  <div class="left">
+    <div class="sf-cloud-icon">
+      <svg viewBox="0 0 52 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21.7 6.3a9.1 9.1 0 0 1 6.5-2.7 9.2 9.2 0 0 1 8.2 5.1 7.6 7.6 0 0 1 3.1-.7 7.7 7.7 0 0 1 7.7 7.7 7.7 7.7 0 0 1-7.7 7.7H11.5a8 8 0 0 1-8-8 8 8 0 0 1 8-8 8 8 0 0 1 2.3.3 9.1 9.1 0 0 1 7.9-1.4z" fill="#0176D3"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Weekly Business Review — IST Support</h1>
+      <div class="sub">Support Experience &nbsp;·&nbsp; Apr 2026 &nbsp;·&nbsp; Prepared for SVP Review</div>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge-ist">IST</span>
+    <span class="badge-sf">salesforce</span>
+    <span class="badge-date">May 5, 2026</span>
+  </div>
+</div>
+
+<!-- ══ EXEC KPI STRIP ══ -->
+<div class="kpi-strip">
+  <div class="kpi-tile" style="--accent:var(--sf-blue)">
+    <div class="lbl">Total Inflow (YTD)</div>
+    <div class="val">5,637</div>
+    <div class="chg">Jan – Apr 2026</div>
+  </div>
+  <div class="kpi-tile" style="--accent:var(--sf-teal)">
+    <div class="lbl">Total Closures (YTD)</div>
+    <div class="val">5,372</div>
+    <div class="chg">Jan – Apr 2026</div>
+  </div>
+  <div class="kpi-tile" style="--accent:var(--sf-green)">
+    <div class="lbl">CSAT (Apr)</div>
+    <div class="val">4.87</div>
+    <div class="chg"><span class="up">▲ +0.15 vs Mar</span> &nbsp;Target: 4.5</div>
+  </div>
+  <div class="kpi-tile" style="--accent:var(--sf-orange)">
+    <div class="lbl">TTR (Apr)</div>
+    <div class="val">9.8</div>
+    <div class="chg"><span class="up">▼ −0.3 vs Mar</span> &nbsp;Target: 10 days</div>
+  </div>
+  <div class="kpi-tile" style="--accent:var(--sf-red)">
+    <div class="lbl">Total Sev 1s</div>
+    <div class="val">215</div>
+    <div class="chg"><span class="warn">Partner Premier: 39%</span></div>
+  </div>
+</div>
+
+<!-- ══ ROW 1: LEFT PANEL + KPI TABLE ══ -->
+<div class="row row-13" style="margin-bottom:16px">
+
+  <!-- Left Panel -->
+  <div style="display:flex;flex-direction:column;gap:14px">
+
+    <!-- Inflow Trend Card -->
+    <div class="card">
+      <div class="card-title">Inflow Trend <span>Jan – Apr 2026</span></div>
+      <div class="chart-wrap">
+        <canvas id="inflowChart"></canvas>
+      </div>
+      <div style="margin-top:12px">
+        <div class="breakdown-row">
+          <span class="seg">Ind</span>
+          <span class="nums">965 → 946</span>
+          <span class="moa moa-dn">▼ 1.97% M-o-A</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="seg">Rev</span>
+          <span class="nums">521 → 515</span>
+          <span class="moa moa-dn">▼ 1.15% M-o-A</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sev 1 Card -->
+    <div class="card">
+      <div class="card-title">Sev 1 Health</div>
+      <div class="sev1-stats">
+        <div class="stat-box">
+          <div class="sv">215</div>
+          <div class="sl">Total Sev 1s</div>
+        </div>
+        <div class="stat-box">
+          <div class="sv">6.51</div>
+          <div class="sl">TTR (days)</div>
+        </div>
+        <div class="stat-box">
+          <div class="sv">4.86</div>
+          <div class="sl">CSAT <span style="font-size:.65rem">(21 resp)</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="sv">39%</div>
+          <div class="sl">Partner Premier</div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:4px">Top Sev 1 Drivers</div>
+      <div class="driver-item"><div class="driver-dot" style="background:#032D60"></div>OMNI Studio<span class="driver-count">36</span></div>
+      <div class="driver-item"><div class="driver-dot" style="background:#0176D3"></div>Revenue Cloud Configurator<span class="driver-count">24</span></div>
+      <div class="driver-item"><div class="driver-dot" style="background:#06A59A"></div>Industries Life Sciences<span class="driver-count">20</span></div>
+    </div>
+  </div>
+
+  <!-- KPI Table Card -->
+  <div class="card">
+    <div class="card-title">Key Performance Indicators <span>Color = vs Target &nbsp;|&nbsp; Delta = M-o-M change</span></div>
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th style="text-align:left;min-width:130px">KPIs</th>
+          <th>Target</th>
+          <th>Apr '26</th>
+          <th>Mar '26</th>
+          <th>Feb '26</th>
+          <th>Jan '26</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Support Inflow -->
+        <tr>
+          <td>Support Inflow</td>
+          <td class="target">—</td>
+          <td><span class="cell-val">1,462</span><span class="delta delta-neu">(-24)</span></td>
+          <td><span class="cell-val">1,486</span><span class="delta delta-neu">(+52)</span></td>
+          <td><span class="cell-val">1,434</span><span class="delta delta-neu">(+173)</span></td>
+          <td><span class="cell-val">1,261</span></td>
+        </tr>
+        <!-- Closures -->
+        <tr>
+          <td>Closures</td>
+          <td class="target">—</td>
+          <td><span class="cell-val">1,528</span><span class="delta delta-good">(+96)</span></td>
+          <td><span class="cell-val">1,432</span><span class="delta delta-good">(+75)</span></td>
+          <td><span class="cell-val">1,357</span><span class="delta delta-good">(+295)</span></td>
+          <td><span class="cell-val">1,062</span></td>
+        </tr>
+        <!-- SLO Miss % -->
+        <tr>
+          <td>SLO Miss %</td>
+          <td class="target">&lt; 2%</td>
+          <td><span class="cell-val">0.2%</span><span class="delta delta-bad">(+0.1)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">0.1%</span><span class="delta delta-good">(-0.1)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">0.0%</span><span class="delta delta-good">(-0.1)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">0.1%</span> <span class="status-pill pill-green">✓</span></td>
+        </tr>
+        <!-- Escalation % -->
+        <tr>
+          <td>Escalation %</td>
+          <td class="target">&lt; 2%</td>
+          <td><span class="cell-val">0.6%</span><span class="delta delta-good">(-0.2)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">0.8%</span><span class="delta delta-good">(-0.3)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">1.1%</span><span class="delta delta-bad">(+0.5)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">0.6%</span> <span class="status-pill pill-green">✓</span></td>
+        </tr>
+        <!-- TTR -->
+        <tr>
+          <td>TTR</td>
+          <td class="target">10 days</td>
+          <td><span class="cell-val">9.8</span><span class="delta delta-good">(-0.3)</span> <span class="status-pill pill-green">✓</span></td>
+          <td style="background:var(--sf-red-lt)"><span class="cell-val" style="color:var(--sf-red)">10.1</span><span class="delta delta-bad">(+1.3)</span> <span class="status-pill pill-red">✗</span></td>
+          <td><span class="cell-val">8.8</span><span class="delta delta-bad">(+0.4)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">8.4</span> <span class="status-pill pill-green">✓</span></td>
+        </tr>
+        <!-- CSAT -->
+        <tr>
+          <td>CSAT</td>
+          <td class="target">4.5</td>
+          <td><span class="cell-val">4.87</span><span class="delta delta-good">(+0.15)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">4.72</span><span class="delta delta-warn">(-0.04)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">4.76</span><span class="delta delta-warn">(-0.1)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">4.86</span> <span class="status-pill pill-green">✓</span></td>
+        </tr>
+        <!-- Reopen Rate -->
+        <tr>
+          <td>Reopen Rate</td>
+          <td class="target">20%</td>
+          <td><span class="cell-val">6.2%</span><span class="delta delta-good">(-0.2)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">6.4%</span><span class="delta delta-bad">(+1)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">5.4%</span><span class="delta delta-good">(-1.9)</span> <span class="status-pill pill-green">✓</span></td>
+          <td><span class="cell-val">7.3%</span> <span class="status-pill pill-green">✓</span></td>
+        </tr>
+        <!-- Investigations -->
+        <tr>
+          <td>Investigations</td>
+          <td class="target">—</td>
+          <td><span class="cell-val">124</span><span class="delta delta-good">(-39)</span></td>
+          <td><span class="cell-val">163</span><span class="delta delta-bad">(+23)</span></td>
+          <td><span class="cell-val">140</span><span class="delta delta-bad">(+34)</span></td>
+          <td><span class="cell-val">106</span></td>
+        </tr>
+        <!-- Investigation Rate -->
+        <tr>
+          <td>Investigation Rate</td>
+          <td class="target">—</td>
+          <td><span class="cell-val">8.5%</span><span class="delta delta-good">(-2.5)</span></td>
+          <td><span class="cell-val">11.0%</span><span class="delta delta-bad">(+1.2)</span></td>
+          <td><span class="cell-val">9.8%</span><span class="delta delta-bad">(+1.4)</span></td>
+          <td><span class="cell-val">8.4%</span></td>
+        </tr>
+        <!-- Bugs -->
+        <tr>
+          <td>Bugs</td>
+          <td class="target">—</td>
+          <td><span class="cell-val">49</span><span class="delta delta-good">(-39)</span></td>
+          <td><span class="cell-val">88</span><span class="delta delta-bad">(+17)</span></td>
+          <td><span class="cell-val">71</span><span class="delta delta-bad">(+6)</span></td>
+          <td><span class="cell-val">65</span></td>
+        </tr>
+        <!-- Bug Rate -->
+        <tr>
+          <td>Bug Rate</td>
+          <td class="target">—</td>
+          <td><span class="cell-val">3.4%</span><span class="delta delta-good">(-2.5)</span></td>
+          <td><span class="cell-val">5.9%</span><span class="delta delta-bad">(+0.9)</span></td>
+          <td><span class="cell-val">5.0%</span><span class="delta delta-good">(-0.2)</span></td>
+          <td><span class="cell-val">5.2%</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- CSAT Breakdown -->
+    <div style="margin-top:16px">
+      <div class="section-label">CSAT Breakdown — Apr '26</div>
+      <div class="csat-strip">
+        <div class="csat-box overall">
+          <div class="cv">4.87</div>
+          <div class="cl">Overall CSAT</div>
+          <div class="cn">91 responses</div>
+        </div>
+        <div class="csat-box prem">
+          <div class="cv">4.85</div>
+          <div class="cl">Premier</div>
+          <div class="cn">54 responses</div>
+        </div>
+        <div class="csat-box sig">
+          <div class="cv">4.92</div>
+          <div class="cl">Signature</div>
+          <div class="cn">26 responses</div>
+        </div>
+        <div class="csat-box std">
+          <div class="cv">4.82</div>
+          <div class="cl">Standard</div>
+          <div class="cn">11 responses</div>
+        </div>
+      </div>
+      <div class="tp-row">
+        <div class="tp-box">
+          <div class="tv">2.07</div>
+          <div class="tl">Throughput</div>
+        </div>
+        <div class="tp-box">
+          <div class="tv" style="color:var(--sf-green)">113%</div>
+          <div class="tl">Productivity</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ROW 2: TREND CHART + OBSERVATIONS + CASE DRIVERS ══ -->
+<div class="row row-3">
+
+  <!-- Multi-metric Trend -->
+  <div class="card">
+    <div class="card-title">Inflow vs Closures Trend</div>
+    <div class="chart-wrap" style="height:200px">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Key Observations -->
+  <div class="card">
+    <div class="card-title">Key Observations &amp; Actions</div>
+    <div class="obs-item">
+      <div class="obs-icon" style="background:#FEF0DC;color:var(--sf-orange)">!</div>
+      <div class="obs-text">
+        <div class="oh">TTR breached target in Mar (10.1d) — recovered to 9.8d in Apr</div>
+        <div class="os">Mar spike driven by I-Pad/Mobile configuration issues. Apr back within 10-day SLA.</div>
+      </div>
+    </div>
+    <div class="obs-item">
+      <div class="obs-icon" style="background:var(--sf-red-lt);color:var(--sf-red)">↑</div>
+      <div class="obs-text">
+        <div class="oh">I-Pad / Mobile Issues — Configuration</div>
+        <div class="os">Driving elevated case volumes; action plan in progress with product team.</div>
+      </div>
+    </div>
+    <div class="obs-item">
+      <div class="obs-icon" style="background:var(--sf-red-lt);color:var(--sf-red)">↑</div>
+      <div class="obs-text">
+        <div class="oh">Visit Management Issue — Documentation</div>
+        <div class="os">KB gap identified; documentation remediation underway to deflect repeat cases.</div>
+      </div>
+    </div>
+    <div class="obs-item">
+      <div class="obs-icon" style="background:var(--sf-green-lt);color:var(--sf-green)">✓</div>
+      <div class="obs-text">
+        <div class="oh">Bug Rate dropped sharply: 5.9% → 3.4% in Apr (-2.5pp)</div>
+        <div class="os">Bugs filed also down from 88 → 49. Positive engineering signal.</div>
+      </div>
+    </div>
+    <div class="obs-item">
+      <div class="obs-icon" style="background:var(--sf-green-lt);color:var(--sf-green)">✓</div>
+      <div class="obs-text">
+        <div class="oh">CSAT at 4.87 — highest in 4-month period</div>
+        <div class="os">Signature tier leads at 4.92. All segments well above 4.5 target.</div>
+      </div>
+    </div>
+    <div class="obs-item">
+      <div class="obs-icon" style="background:var(--sf-green-lt);color:var(--sf-green)">✓</div>
+      <div class="obs-text">
+        <div class="oh">Closures (1,528) exceed Inflow (1,462) for first time in Apr</div>
+        <div class="os">Net positive backlog reduction of 66 cases. Productivity at 113%.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Case Drivers -->
+  <div class="card">
+    <div class="card-title">Top Case Drivers — Apr '26</div>
+    <div style="margin-bottom:16px">
+      <div class="driver-bar-row">
+        <span class="dlbl">Life Science Cloud</span>
+        <div class="driver-bar-bg"><div class="driver-bar-fill" style="width:100%;background:#032D60"></div></div>
+        <span class="driver-pct">16%</span>
+      </div>
+      <div class="driver-bar-row">
+        <span class="dlbl">OMNI</span>
+        <div class="driver-bar-bg"><div class="driver-bar-fill" style="width:75%;background:#0176D3"></div></div>
+        <span class="driver-pct">~12%</span>
+      </div>
+      <div class="driver-bar-row">
+        <span class="dlbl">Industry CPQ / Order Mgmt</span>
+        <div class="driver-bar-bg"><div class="driver-bar-fill" style="width:60%;background:#1B96FF"></div></div>
+        <span class="driver-pct">~10%</span>
+      </div>
+      <div class="driver-bar-row">
+        <span class="dlbl">Digital Commerce</span>
+        <div class="driver-bar-bg"><div class="driver-bar-fill" style="width:50%;background:#06A59A"></div></div>
+        <span class="driver-pct">~8%</span>
+      </div>
+      <div class="driver-bar-row">
+        <span class="dlbl">Rev Cloud Core – Config</span>
+        <div class="driver-bar-bg"><div class="driver-bar-fill" style="width:40%;background:#7526E3"></div></div>
+        <span class="driver-pct">~7%</span>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:8px">TTR Trend (days)</div>
+    <div class="chart-wrap" style="height:130px">
+      <canvas id="ttrChart"></canvas>
+    </div>
+
+    <div style="margin-top:14px">
+      <div class="section-label">Legend</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:.72rem">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--sf-green);display:inline-block"></span>On Target</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--sf-red);display:inline-block"></span>Breached Target</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--sf-orange);display:inline-block"></span>At Risk</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--sf-gray1);display:inline-block"></span>No Target</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  IST Support — Weekly Business Review &nbsp;·&nbsp; Data as of Apr 30, 2026 &nbsp;·&nbsp; Salesforce Internal &nbsp;·&nbsp; Confidential
+</div>
+
+<script>
+  const months = ['Jan','Feb','Mar','Apr'];
+  const inflow   = [1261,1434,1486,1462];
+  const closures = [1062,1357,1432,1528];
+  const ttr      = [8.4, 8.8, 10.1, 9.8];
+
+  const baseOpts = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', labels:{ font:{size:11}, boxWidth:12, padding:10 } }, tooltip:{mode:'index',intersect:false} },
+    scales:{
+      x:{ grid:{color:'#DDDBDA'}, ticks:{font:{size:11}} },
+      y:{ grid:{color:'#DDDBDA'}, ticks:{font:{size:11}}, beginAtZero:false }
+    }
+  };
+
+  // Inflow sparkline
+  new Chart(document.getElementById('inflowChart'),{
+    type:'line',
+    data:{
+      labels: months,
+      datasets:[{
+        label:'Inflow', data: inflow,
+        borderColor:'#0176D3', backgroundColor:'rgba(1,118,211,.15)',
+        fill:true, tension:.4, pointRadius:5, pointBackgroundColor:'#0176D3',
+        borderWidth:2.5
+      }]
+    },
+    options:{
+      ...baseOpts,
+      plugins:{
+        ...baseOpts.plugins,
+        legend:{display:false},
+        datalabels: undefined
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10}}},
+        y:{grid:{color:'#DDDBDA'}, ticks:{font:{size:10}}, beginAtZero:false}
+      }
+    }
+  });
+
+  // Trend chart
+  new Chart(document.getElementById('trendChart'),{
+    type:'bar',
+    data:{
+      labels: months,
+      datasets:[
+        { label:'Inflow',   data: inflow,   backgroundColor:'#0176D3', borderRadius:4 },
+        { label:'Closures', data: closures, backgroundColor:'#06A59A', borderRadius:4 }
+      ]
+    },
+    options:{ ...baseOpts }
+  });
+
+  // TTR line
+  new Chart(document.getElementById('ttrChart'),{
+    type:'line',
+    data:{
+      labels: months,
+      datasets:[
+        {
+          label:'TTR (days)', data: ttr,
+          borderColor: ctx => {
+            const v = ttr[ctx.dataIndex];
+            return v > 10 ? '#BA0517' : '#2E844A';
+          },
+          segment:{
+            borderColor: ctx => ttr[ctx.p1DataIndex] > 10 ? '#BA0517' : '#0176D3'
+          },
+          backgroundColor:'rgba(1,118,211,.08)', fill:true,
+          tension:.3, pointRadius:5,
+          pointBackgroundColor: ttr.map(v => v > 10 ? '#BA0517' : '#2E844A'),
+          borderWidth:2.5
+        },
+        {
+          label:'Target (10d)', data:[10,10,10,10],
+          borderColor:'#DD7A01', borderDash:[5,4], borderWidth:1.5,
+          pointRadius:0, fill:false
+        }
+      ]
+    },
+    options:{
+      ...baseOpts,
+      plugins:{
+        ...baseOpts.plugins,
+        legend:{ position:'top', labels:{ font:{size:10}, boxWidth:10, padding:8 } }
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10}}},
+        y:{grid:{color:'#DDDBDA'}, ticks:{font:{size:10}}, min:7, max:12}
+      }
+    }
+  });
+</script>
+</body>
+</html>
